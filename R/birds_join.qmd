@@ -1,0 +1,59 @@
+---
+title: "birds join"
+format: html
+editor: visual
+---
+
+## Task 1: Joins on birds
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(dplyr)
+library(here)
+
+bird_observations <- read_csv(here("data","52_pp52_birds_1.csv"))
+
+sites <- read_csv(here("data","52_pp52_sites_1.csv"))
+
+surveys <- read_csv(here("data","52_pp52_surveys_1.csv"))
+
+taxalist <- read_csv(here("data","52_pp52_taxalist_1.csv"))
+
+birds_subset <-bird_observations %>%  filter(species_id %in% c("BHCO","RWBL"),
+                                             site_id %in% c("LI-W","NU-C"))
+## Left join practice
+
+birds_left <- left_join(x = birds_subset, y = sites, 
+                        by = join_by(site_id)) %>% 
+  left_join(., y = taxalist, by = join_by(species_id))
+
+
+## Full join practice 
+
+birds_full = full_join(x = birds_subset,y = sites, by = join_by(site_id))
+
+
+
+```
+
+## Task 2
+
+```{r}
+bird_observations <- bird_observations %>% rename(bird_obs_notes = notes)
+
+## All bird observations + joined to taxonomic (site and survey info) + limited to survey_data, common_name, park_name, bird_count
+
+birds_obs_new <- bird_observations %>% 
+  left_join(.,taxalist, join_by(species_id)) %>% 
+  left_join(.,sites, join_by(site_id)) %>% 
+  left_join(.,surveys, join_by(site_id, survey_id)) %>%  
+  select(survey_date,common_name,park_name,bird_count) %>% 
+  mutate(survey_month = lubridate::month(survey_date)) %>% 
+  relocate(survey_month, .after = survey_date) %>% 
+  group_by(park_name,survey_month) %>% 
+  summarize(sample_size = n()) %>% 
+  filter(park_name %in% c("Lindo","Orme","Palomino","Sonrisa"))
+
+
+```

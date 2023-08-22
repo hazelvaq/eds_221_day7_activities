@@ -55,5 +55,5 @@ birds_obs_new <- bird_observations %>%
   summarize(sample_size = n()) %>% 
   filter(park_name %in% c("Lindo","Orme","Palomino","Sonrisa"))
 
-
+lubridicate:
 ```
